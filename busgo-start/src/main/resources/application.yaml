@@ -3,3 +3,44 @@ server:
   tomcat:
     threads:
       max: 10 #dong thoi toi da 10 threads
+
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      checkRandom:
+        register-health-indicator: true
+        sliding-window-size: 10
+        permitted-number-of-calls-in-half-open-state: 3
+        # sliding-window-type: TIME_BASED
+        minimum-number-of-calls: 20
+        wait-duration-in-open-state: 50s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+  ratelimiter:
+    instances:
+      backendA:
+        limit-for-period: 2   #so luong  yeu cau toi da moi giay (2 req/1s)
+        limit-refresh-period: 10s #cu sau 10 giay he thong se cap 2 req
+        timeout-duration: 0
+        register-health-indicator: true
+        event-consumer-buffer-size: 100
+      backendB:
+        limit-for-period: 5
+        limit-refresh-period: 10ms
+        timeout-duration: 3s
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+  endpoint:
+    health:
+      show-details: always
+
+
